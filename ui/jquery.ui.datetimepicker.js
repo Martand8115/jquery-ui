@@ -1,13 +1,16 @@
 /*!
- * jQuery UI Timepicker 0.2.1
+ * jQuery UI DateTimepicker @VERSION
+ *
+ * Copyright 2010, AUTHORS.txt (http://jqueryui.com/about)
+ * Dual licensed under the MIT or GPL Version 2 licenses.
+ * http://jquery.org/license
  *
  * Copyright (c) 2009 Martin Milesich (http://milesich.com/)
  *  http://addyosmani.com/blog/the-missing-date-time-selector-for-jquery-ui/
  *
- * Copyright (c) 2010 Gábor Czigola (http://gablog.eu)
+ * Copyright (c) 2010 Gábor Czigola
  *
- *
- * $Id: timepicker.js 28 2009-08-11 20:31:23Z majlo $
+ * http://docs.jquery.com/UI/Timepicker
  *
  * Depends:
  *  ui.core.js
@@ -92,6 +95,8 @@ $.datepicker._checkExternalClick = function (event) {
     if (!$.datepicker._curInst) return;
     var $target = $(event.target);
 
+    $.datepicker._curInst.closeButtonClicked = $target.parents('.ui-datepicker-buttonpane').length;
+
     if (($target.parents('#' + $.timepicker._mainDivId).length == 0)) {
         $.datepicker._checkExternalClickOverride(event);
     }
@@ -108,18 +113,28 @@ $.datepicker._hideDatepicker = function(input, duration) {
 
     if (!inst || (input && inst != $.data(input, PROP_NAME))) return;
 
+    // Change the field only when Done button clicked or sliders changed.
+    var saveOnHide = $.timepicker._modified;
+    try {
+        saveOnHide |= inst.closeButtonClicked;
+    }
+    catch (err) {}
+
     // Get the value of showTime property
     var showTime = this._get(inst, 'showTime');
 
-    if (input === undefined && showTime) {
+    if (saveOnHide && input === undefined && showTime) {
         if (inst.input) {
             inst.input.val(this._formatDate(inst));
-            inst.input.trigger('change'); // fire the change event
         }
 
         this._updateAlternate(inst);
 
         if (showTime) $.timepicker.update(this._formatDate(inst));
+
+        if (inst.input) {
+            inst.input.trigger('change'); // fire the change event
+        }
     }
 
     // Hide datepicker
@@ -129,6 +144,8 @@ $.datepicker._hideDatepicker = function(input, duration) {
     if (showTime) {
         $.timepicker.hide();
     }
+
+    $.timepicker._modified = false;
 };
 
 /**
@@ -186,6 +203,7 @@ Timepicker.prototype = {
         this._orgMinute = null;
         this._colonPos  = -1;
         this._visible   = false;
+        this._modified  = false;
         this.tpDiv      = $('<div id="' + this._mainDivId + '" class="ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all ui-helper-hidden-accessible" style="z-index: 16; width: 100px; display: none; position: absolute;"></div>');
         this._generateHtml();
     },
@@ -302,9 +320,11 @@ Timepicker.prototype = {
             max: 23,
             step: 1,
             slide: function(event, ui) {
+                self._modified = true;
                 self._writeTime('hour', ui.value);
             },
             stop: function(event, ui) {
+                self._modified = true;
                 $('#' + self._inputId).focus();
             }
         });
@@ -405,7 +425,7 @@ Timepicker.prototype = {
         }
 
         this._writeTime(type, value);
-    }
+    }    
 };
 
 $.timepicker = new Timepicker();
