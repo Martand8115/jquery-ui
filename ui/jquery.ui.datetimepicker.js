@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  * jQuery UI DateTimepicker @VERSION
  *
  * Copyright 2010, AUTHORS.txt (http://jqueryui.com/about)
@@ -204,7 +204,7 @@ Timepicker.prototype = {
         this._colonPos  = -1;
         this._visible   = false;
         this._modified  = false;
-        this.tpDiv      = $('<div id="' + this._mainDivId + '" class="ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all ui-helper-hidden-accessible" style="z-index: 16; width: 100px; display: none; position: absolute;"></div>');
+        this.tpDiv      = $('<div id="' + this._mainDivId + '" class="ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" style="z-index: 16; width: 100px; display: none; position: absolute;"></div>');
         this._generateHtml();
     },
 
